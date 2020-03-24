@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>Windows执行命令-不得贪胜</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    
+<link rel="stylesheet" href="/css/adagio.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="http://forthrglory.com" target="_blank" rel="noopener" class="nav-item nav-link">forthrglory</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            Forthrglory
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            Forthrglory
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://forthrglory.com" target="_blank" rel="noopener">forthrglory</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">Windows执行命令</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-07-04</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/">知识点</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><h4 id="psexec"><a href="#psexec" class="headerlink" title="psexec"></a>psexec</h4><h6 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h6><p>开启ADMIN$共享</br><br>安装服务</p>
+<h6 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h6><p>windows用来远程系统管理的工具</br><br>需要知道账号密码或者hash</br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">psexec.exe \\远程目标机器ip -u 账号 -p 密码 cmd</span><br></pre></td></tr></table></figure>
+<p>在第一次用的时候会弹出确认框，可以添加参数避免</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">psexec.exe -accepteula  \\远程目标机器ip -u 账号 -p 密码 cmd</span><br></pre></td></tr></table></figure>
+<p>获取的是一个半交互式的shell，当破解不出hashde’shi’hou可以配合wce做hash注入使用</br><br>psexec已经是被“盯”的对象，因此在有防火墙的情况下非常容易被ban，而且会留下痕迹，也不容易清理。</p>
+<h6 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h6><p>PsExec 利用某一个账号，通过 SMB 协议连接远程机器的命名管道（基于 SMB 的 RPC），在远程机器上创建并启动一个名为 PSEXESVC 的服务PSEXESVC 服务会注册新的命名管道PsExec 连接至 PSEXESVC 新创建的命名管道，通过此管道通知 PSEXESVC 服务在远程机器上面启动我们指定的程序，并将程序的 stdin 与 stdout 通过命名管道转回本地 Shell，现实远程命令的本地交互</p>
+<h4 id="WMIEXEC"><a href="#WMIEXEC" class="headerlink" title="WMIEXEC"></a>WMIEXEC</h4><h6 id="条件-1"><a href="#条件-1" class="headerlink" title="条件"></a>条件</h6><p>开放135端口</br><br>启动WMI服务</br><br>获取账号密码或hash</br></p>
+<h6 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h6><p>基本psexec能用的地方WMI都可以用，而且比psexec更好用</br><br>同样需要获取到账号密码或hash，也可以进行hash注入</br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">获取半交互式shell</span><br><span class="line">cscript.exe &#x2F;&#x2F;nologo wmiexec.vbs &#x2F;shell 192.168.100.1 账号 密码</span><br><span class="line"></span><br><span class="line">执行单条命令</span><br><span class="line">cscript.exe &#x2F;&#x2F;nologo wmiexec.vbs &#x2F;cmd 192.168.100.1 账号 密码 &quot;ipconfig&quot;</span><br></pre></td></tr></table></figure>
+<h6 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h6><p>整个过程是先调用WMI通过账号密码或者NTLM认证（WCE注入）连接到远程计算机，然后如果提供了账号密码，则用这个账号密码建立一个到目标的IPC连接。随后WMI会建立一个共享文件夹，用于远程读取命令执行结果。<br>当用户输入命令时，WMI创建进程执行该命令，然后把结果输出到文件，这个文件位于之前创建的共享文件夹中。最后，通过FSO组件访问远程共享文件夹中的结果文件，将结果输出。当结果读取完成时，调用WMI执行命令删除结果文件。最后当WMIEXEC退出时，删除文件共享。</p>
+<h4 id="AT-Schtasks"><a href="#AT-Schtasks" class="headerlink" title="AT/Schtasks"></a>AT/Schtasks</h4><p>这两个都是计划任务的命令，因此我放在一起</p>
+<h6 id="条件-2"><a href="#条件-2" class="headerlink" title="条件"></a>条件</h6><p>启动Task Scheduler服务</br><br>注意：在windows8及以后at命令就弃用了，一律改用schtasks了</p>
+<h6 id="使用-2"><a href="#使用-2" class="headerlink" title="使用"></a>使用</h6><p>自己打开cmd，输入“SCHTASKS /?”查看使用命令</br><br>一般配合共享文件上传上木马之类执行文件，如果提示找不到网络路径，代表服务被禁用了</p>
+<h6 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h6><p>计划任务执行文件，需要管理员权限</p>
+<h4 id="SC-Create"><a href="#SC-Create" class="headerlink" title="SC Create"></a>SC Create</h4><h6 id="条件-3"><a href="#条件-3" class="headerlink" title="条件"></a>条件</h6><p>开启远程服务管</p>
+<h6 id="使用-3"><a href="#使用-3" class="headerlink" title="使用"></a>使用</h6><p>cmd输入“sc”查看用法</br></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sc \\IP create test binpath&#x3D; &quot;cmd.exe &#x2F;c start c:\programdata\test.bat&quot;</span><br><span class="line">sc \\IP start test</span><br><span class="line">sc \\IP delete test</span><br></pre></td></tr></table></figure>
+<p>一般常用方法如上</p>
+<h6 id="原理-3"><a href="#原理-3" class="headerlink" title="原理"></a>原理</h6><p>SC用来对系统服务进行操作</br><br>将cmd绑定到test.bat，test.bat里是需要执行的命令，然后运行服务，即可执行命令</br><br>（个人理解，如果有不对的地方请指正，谢谢）</p>
+<h4 id="SMB-MOF"><a href="#SMB-MOF" class="headerlink" title="SMB+MOF"></a>SMB+MOF</h4><h6 id="条件-4"><a href="#条件-4" class="headerlink" title="条件"></a>条件</h6><p>MYSQL的root密码</p>
+<h6 id="使用-4"><a href="#使用-4" class="headerlink" title="使用"></a>使用</h6><p>将需要执行的命令写入文件中并利用SMB上传到共享文件夹，然后利用MYSQL将文件写入到nullevt.mof，利用nullevt.mof每分钟执行一次的任务，执行命令</br><br>参考<a href="https://www.cnblogs.com/wh4am1/p/6613770.html" target="_blank" rel="noopener">MOF提权</a></p>
+<h6 id="原理-4"><a href="#原理-4" class="headerlink" title="原理"></a>原理</h6><p>SMB是一种协议名，被用于web连接和客户端与服务端之间的信息沟通。MOF则是MYSQL的拓展文件，利用SMB上传文件后，用MYSQL将文件内容导入到nullevt.mof中，每分钟nullevt.mof会执行一次，导致命令执行，也可以利用这个来提权。</p>
+<h4 id="SMB-DLL-hijacks"><a href="#SMB-DLL-hijacks" class="headerlink" title="SMB+DLL hijacks"></a>SMB+DLL hijacks</h4><h6 id="条件-5"><a href="#条件-5" class="headerlink" title="条件"></a>条件</h6><p>可劫持的dll程序</p>
+<h6 id="使用-5"><a href="#使用-5" class="headerlink" title="使用"></a>使用</h6><p>利用SMB上传文件，利用dll劫持执行任意命令</br><br>参考<a href="https://www.cnblogs.com/wayuzhi/p/4152516.html" target="_blank" rel="noopener">DLL劫持</a></p>
+<h6 id="原理-5"><a href="#原理-5" class="headerlink" title="原理"></a>原理</h6><p>SMB不再赘述，DLL文件劫持则是利用windows首先会从应用程序目录下开始寻找dll文件的特性，将恶意dll程序放到目录下，应用程序运行时会调用恶意dll程序导致任意命令执行。</p>
+<h4 id="DCOM"><a href="#DCOM" class="headerlink" title="DCOM"></a>DCOM</h4><h6 id="条件-6"><a href="#条件-6" class="headerlink" title="条件"></a>条件</h6><p>关闭防火墙</br></p>
+<h6 id="使用-6"><a href="#使用-6" class="headerlink" title="使用"></a>使用</h6><p>参考<a href="https://bbs.pediy.com/thread-226540-1.htm" target="_blank" rel="noopener">DCOM执行命令</a></p>
+<h6 id="原理-6"><a href="#原理-6" class="headerlink" title="原理"></a>原理</h6><p>参考<a href="https://bbs.pediy.com/thread-226540-1.htm" target="_blank" rel="noopener">DCOM执行命令</a></p>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/03/10/i%E6%98%A5%E7%A7%8B%E6%96%B0%E6%98%A5%E6%88%98%E5%BD%B9%E5%85%AC%E7%9B%8A%E8%B5%9B-%E5%87%BA%E9%A2%98%E8%AE%B0%E5%BD%95/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            i春秋新春战役公益赛-出题记录</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/06/21/phpcmsV9.6.3%E5%90%8E%E5%8F%B0getshell%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">phpcmsV9.6.3后台getshell漏洞复现及分析
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/03/10/i%E6%98%A5%E7%A7%8B%E6%96%B0%E6%98%A5%E6%88%98%E5%BD%B9%E5%85%AC%E7%9B%8A%E8%B5%9B-%E5%87%BA%E9%A2%98%E8%AE%B0%E5%BD%95/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            i春秋新春战役公益赛-出题记录</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/06/21/phpcmsV9.6.3%E5%90%8E%E5%8F%B0getshell%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%8F%8A%E5%88%86%E6%9E%90/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">phpcmsV9.6.3后台getshell漏洞复现及分析
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#psexec"><span class="toc-text">psexec</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理"><span class="toc-text">原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WMIEXEC"><span class="toc-text">WMIEXEC</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件-1"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用-1"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理-1"><span class="toc-text">原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AT-Schtasks"><span class="toc-text">AT&#x2F;Schtasks</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件-2"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用-2"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理-2"><span class="toc-text">原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SC-Create"><span class="toc-text">SC Create</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件-3"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用-3"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理-3"><span class="toc-text">原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SMB-MOF"><span class="toc-text">SMB+MOF</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件-4"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用-4"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理-4"><span class="toc-text">原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SMB-DLL-hijacks"><span class="toc-text">SMB+DLL hijacks</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件-5"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用-5"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理-5"><span class="toc-text">原理</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DCOM"><span class="toc-text">DCOM</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#条件-6"><span class="toc-text">条件</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#使用-6"><span class="toc-text">使用</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#原理-6"><span class="toc-text">原理</span></a></li></ol></li></ol></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/forthrglory" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; Hexo
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio" target="_blank" rel="noopener">Adagio</a> - A <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com" target="_blank" rel="noopener">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+
+<script src="/js/av.min.js"></script>
+
+
+<script src="/js/valine.min.js"></script>
+
+
+<script src="/js/applause-easy.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>
