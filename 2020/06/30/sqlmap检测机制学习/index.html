@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
-    <title>sqlmap检测机制学习-不得贪胜</title>
+    <title>sqlmap检测机制学习(一)-不得贪胜</title>
     
         
             <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
@@ -82,7 +82,7 @@
     <div class="jumbotron jumbotron-fluid">
     <div class="container">
         
-        <h1 class="mt-4 article-title page-title">sqlmap检测机制学习</h1>
+        <h1 class="mt-4 article-title page-title">sqlmap检测机制学习(一)</h1>
         
         <p class="lead text-gray mt-3">By Anonymous; Published on 2020-06-30</p>
         
@@ -104,7 +104,7 @@
                 <div class="row">
                     <div class="col-12">
                         <main>
-                            <article class="article-text page-content"><p>一直对sqlmap的检测机制比较好奇，正好考完试后比较有时间，因此这篇文章将会记录我对sqlmap检测机制的学习和一些看法，如果有什么想法也可以评论或者联系我</p>
+                            <article class="article-text page-content"><p>一直对sqlmap的检测机制比较好奇，正好考完试后比较有时间，因此这篇文章将会记录我对sqlmap检测机制的学习和一些看法，如果有什么想法也可以评论交流学习</p>
 <h4 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h4><p>以mysql为例，简单介绍下SQL注入的类型</p>
 <h5 id="union注入"><a href="#union注入" class="headerlink" title="union注入"></a>union注入</h5><p>最基本的注入，语句类似于</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id&#x3D;1 union select 1,2,database();</span><br></pre></td></tr></table></figure>
