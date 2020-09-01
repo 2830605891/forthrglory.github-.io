@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
-    <title>奇怪的小知识-BurpSuite-不得贪胜</title>
+    <title>奇怪的小知识-不得贪胜</title>
     
         
             <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
@@ -82,7 +82,7 @@
     <div class="jumbotron jumbotron-fluid">
     <div class="container">
         
-        <h1 class="mt-4 article-title page-title">奇怪的小知识-BurpSuite</h1>
+        <h1 class="mt-4 article-title page-title">奇怪的小知识</h1>
         
         <p class="lead text-gray mt-3">By Anonymous; Published on 2020-04-14</p>
         
@@ -104,7 +104,11 @@
                 <div class="row">
                     <div class="col-12">
                         <main>
-                            <article class="article-text page-content"><p>BurpSuite会对POST的数据进行UrlDecode，编写EXP进行模拟登录时需要注意，如果有token含有特殊字符，可能会导致token验证失败。</p>
+                            <article class="article-text page-content"><ol>
+<li>BurpSuite会对POST的数据进行UrlDecode，编写EXP进行模拟登录时需要注意，如果有token含有特殊字符，可能会导致token验证失败。</li>
+<li>开发中兼顾系统的差异性，保证各个系统都可以使用</li>
+<li>需要上传文件时可以将文件以十六进制形式保存，而不用保存文件然后利用file读取</li>
+</ol>
 </article>
                         </main>
                         

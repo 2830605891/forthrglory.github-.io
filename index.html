@@ -234,13 +234,17 @@ Webtrace一开始不知道要干嘛，测试了下发现username有注入，然�
     <div class="col">
         <a href="/2020/04/14/%E5%A5%87%E6%80%AA%E7%9A%84%E5%B0%8F%E7%9F%A5%E8%AF%86-BurpSuite/" class="index-card-link">
             <div class="card-body index-card-box">
-                <h4 class="card-title text-dark article-title">奇怪的小知识-BurpSuite</h4>
+                <h4 class="card-title text-dark article-title">奇怪的小知识</h4>
                 <h6 class="card-subtitle mt-2 text-muted">
                     By 
                     Anonymous; 
                     Published on 2020-04-14</h6>
                 <p class="card-text text-dark mt-2 article-text">
-                    BurpSuite会对POST的数据进行UrlDecode，编写EXP进行模拟登录时需要注意，如果有token含有特殊字符，可能会导致token验证失败。
+                    
+BurpSuite会对POST的数据进行UrlDecode，编写EXP进行模拟登录时需要注意，如果有token含有特殊字符，可能会导致token验证失败。
+开发中兼顾系统的差异性，保证各个系统都可以使用
+需要上传文件时可以将文件以十六进制形式保存，而不用保存文件然后利用file读取
+
 
                 </p>
             </div>
