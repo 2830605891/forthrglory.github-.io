@@ -114,26 +114,16 @@
                         <main>
                             <article class="article-text page-content"><p>周末摸鱼打了下ctf，写下wp</p>
 <h4 id="Web签到题"><a href="#Web签到题" class="headerlink" title="Web签到题"></a>Web签到题</h4><p>打开题目，给出了提示</p>
-<p>1</p>
 <p>访问admin/login，用户名和密码随便就好，返回了jwt数据</p>
-<p>2</p>
 <p>爆破密钥，得到密钥为<code>admin</code></p>
-<p>3</p>
 <p>利用<a href="https://jwt.io/" target="_blank" rel="noopener">jwt.io</a>篡改jwt并访问admin/auth</p>
-<p>4</p>
-<p>5</p>
 <p>然后得到一个下载链接，下载下来发现是一个客户端，然后就放弃了- -</p>
 <p>毕竟是一个人的队伍(逃 </p>
 <h4 id="卡片商店"><a href="#卡片商店" class="headerlink" title="卡片商店"></a>卡片商店</h4><p>访问发现是个购买东西的商店，直接溢出，借4294967296张</p>
-<p>001</p>
 <p>然后等借条消失即可购买</p>
-<p>002</p>
-<p>003</p>
 <p>接着访问网站，无论怎么带key都不太行，最后找表哥学习了波姿势，利用key解密session拿到flag，解密session可以得到数据</p>
-<p>004</p>
 <p>一开始的session会携带有json信息，因此怎么加密都报错，无法识别双引号，删掉session再重新加载就可以了</p>
 <p>利用key加密session</p>
-<p>005</p>
 <p>携带session访问/flag即可拿到flag</p>
 <p>看了看后面的题目，暂时没几个人解出来就溜了～</p>
 </article>
