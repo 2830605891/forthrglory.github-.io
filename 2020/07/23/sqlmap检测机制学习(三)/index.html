@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>sqlmap检测机制学习(三)-Forthrglory-不得贪胜</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    
+<link rel="stylesheet" href="/css/adagio.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="http://forthrglory.com" target="_blank" rel="noopener" class="nav-item nav-link">forthrglory</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            Forthrglory
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            Forthrglory
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://forthrglory.com" target="_blank" rel="noopener">forthrglory</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">sqlmap检测机制学习(三)</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2020-07-23</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/">知识点</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/sqlmap/">sqlmap</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>写这个系列主要是想学习下sqlmap的检测机制，到时候毕设做扫描器可以参考一下，所以耽搁了下。不过还好，离终点也是越来越近了。</p>
+<p>init对一些参数进行初始化，接下来的重点是start函数</p>
+<p><img src="https://i.loli.net/2020/07/23/IoJl4xBjGfLvhaS.png" alt="1.png"></p>
+<p>针对sqlmap进行了测试，保证程序的完整性和可用性</p>
+<p><img src="https://i.loli.net/2020/07/23/YSeAn1qJjZ6HXsb.png" alt="2.png"></p>
+<p>接下来根据调用方式不同，运行不同代码</p>
+<p>然后就到了关键，start函数</p>
+<p><img src="https://i.loli.net/2020/07/23/GaXVNUvoe62ybrf.png" alt="3.png"></p>
+<p>第一段爆破hash文件，接着查看是否有-d参数，如果有直接连接数据库。如果没有，且有-u参数，没有表单，不是爬取检测，则添加目标</p>
+<p>如果目标不存在，则返回异常并退出。如果目标数量大于一，则记录在日志里。</p>
+<p><img src="https://i.loli.net/2020/07/23/pxdU1DMshNOkVG7.png" alt="4.png"></p>
+<p>紧接着对目标进行迭代，检查连通性以及对method，data等相关字段赋值。</p>
+<p><img src="https://i.loli.net/2020/07/23/tEPaCYj1vf8cOkB.png" alt="5.png"></p>
+<p>再接着配置参数，需要注意，随机user-agent并不是每次爆破都随机一个，而是从字典中选一个，以后不再改变。mobile则是模仿智能手机去访问。</p>
+<p>同时还对data进行编码，接着初始化目标环境，同时对URL进行解析并保存。</p>
+<p>testSqlInj参数是验证是否进行过注入，如果注入过，则保存在字典中，后续不再对该参数进行注入以节省时间。</p>
+<p><img src="https://i.loli.net/2020/07/23/sprbcVOh3RNKS9x.png" alt="6.png"></p>
+<p>接下来是setupTargetEnv函数，主要的作用请参考图片。</p>
+<p><img src="https://i.loli.net/2020/07/23/GyEhtiYFWdm4ozl.png" alt="7.png"></p>
+<p>然后是从下拉菜单中提取参数，sqlmap还是比较谨慎的，防止错过注入点。</p>
+<p>再接下来是checkwaf函数，我会拿出一篇的篇幅详细介绍该函数。该函数与sqlmap检测机制同样是本次学习重点。</p>
+<p>由于知识有限，可能会有些错误，还请师傅们指正。</p>
+<blockquote>
+<p>参考：</p>
+<p><a href="https://zhuanlan.zhihu.com/p/43242220" target="_blank" rel="noopener">sqlmap 内核分析 I: 基础流程</a></p>
+<p><a href="https://x.hacking8.com/post-196.html" target="_blank" rel="noopener">sqlmap源码解析（三）：start函数</a></p>
+<p><a href="https://blog.csdn.net/wn314/article/details/78872828" target="_blank" rel="noopener">Sqlmap中文手册</a></p>
+</blockquote>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/08/27/sqlmap%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0(%E5%9B%9B)/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            sqlmap检测机制学习(四)</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/07/11/sqlmap%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0(%E4%BA%8C)/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">sqlmap检测机制学习(二)
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/08/27/sqlmap%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0(%E5%9B%9B)/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            sqlmap检测机制学习(四)</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/07/11/sqlmap%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0(%E4%BA%8C)/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">sqlmap检测机制学习(二)
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/forthrglory" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; Hexo
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio" target="_blank" rel="noopener">Adagio</a> - A <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com" target="_blank" rel="noopener">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+
+<script src="/js/av.min.js"></script>
+
+
+<script src="/js/valine.min.js"></script>
+
+
+<script src="/js/applause-easy.js"></script>
+
+
+<script src="/live2d-widget/autoload.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>HTTPS ARP中间人攻击-Forthrglory-不得贪胜</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    
+<link rel="stylesheet" href="/css/adagio.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="http://forthrglory.com" target="_blank" rel="noopener" class="nav-item nav-link">forthrglory</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            Forthrglory
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            Forthrglory
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://forthrglory.com" target="_blank" rel="noopener">forthrglory</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">HTTPS ARP中间人攻击</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2019-01-19</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/">知识点</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>针对HTTP，我做了一份简单的思维导图，附上连接<br><a href="http://47.94.129.235/2019/01/17/http%e5%8d%8f%e8%ae%ae%e6%80%9d%e7%bb%b4%e5%af%bc%e5%9b%be/" target="_blank" rel="noopener">HTTP思维导图</a></br><br>HTTP协议可以说是现在世界上使用最广泛的协议，但是HTTP也有它的缺点:<strong>信息传输使用明文</strong></br><br>这就意味着如果有人将你传输的流量截获分析，那你的所有信息在他面前毫无秘密可言，基于此，诞生了比HTTP更安全的协议，HTTPS，简单来说，就是HTTP+SSL</br><br>注意的是HTTP的缺省端口是80，而HTTPS的缺省端口是443</br><br>简单说下HTTPS协议的具体步骤(摘自<a href="https://blog.csdn.net/qq389674856/article/details/82831799" target="_blank" rel="noopener">E11iot</a>)：</p>
+<blockquote>
+<p>1.客户端发送报文进行SSL通信。报文中包含客户端支持的SSL的指定版本、加密组件列表（加密算法及密钥长度等）。</br><br>2.服务器应答，并在应答报文中包含SSL版本以及加密组件。服务器的加密组件内容是从接受到的客户端加密组件内筛选出来的。</br><br>3.服务器发送报文，报文中包含公开密钥证书。</br><br>4.服务器发送报文通知客户端，最初阶段SSL握手协商部分结束。</br><br>5.SSL第一次握手结束之后，客户端发送一个报文作为回应。报文中包含通信加密中使用的一种被称Pre-master secret的随机密码串。该密码串已经使用服务器的公钥加密。</br><br>6.客户端发送报文，并提示服务器，此后的报文通信会采用Pre-master secret密钥加密。</br><br>7.客户端发送Finished报文。该报文包含连接至今全部报文的整体校验值。这次握手协商是否能够完成成功，要以服务器是否能够正确解密该报文作为判定标准。</br><br>8.服务器同样发送Change Cipher Spec报文。</br><br>9.服务器同样发送Finished报文。</br><br>10.服务器和客户端的Finished报文交换完毕之后，SSL连接就算建立完成。</br><br>11.应用层协议通信，即发送HTTP响应。</br><br>12.最后由客户端断开链接。断开链接时，发送close_nofify报文。</p>
+</blockquote>
+<p><strong>HTTPS的优点：</strong><br>1.可认证用户和服务器，保证信息发送到正确的用户和服务器<br>2.利用SSL协议进行加密，比HTTP更加安全，保证数据在传输中不改变，维护完整性<br>3.HTTPS是当下最流行的安全解决方案，也许不是最有效的，但是大幅度增加了攻击成本</p>
+<p><strong>HTTPS的缺点：</strong><br>1.要钱。购买一份证书是需要钱的，而且越高级的证书越是要更多的钱<br>2.时间长。相比起HTTP，它的页面响应时间要长一半，耗电量也大一到两成<br>3.缓存不如HTTP高效。甚至有时候还会干扰已有的安全措施<br>4.SSL一般需要绑定IP。一个IP上但是不能绑定多个域名，IPV4经不起这个消耗<br>5.HTTPS并不安全，对于一般的黑客攻击，DDOS攻击，服务器劫持等不起作用，而且在某些国家控制CA证书的情况下，中间人攻击一样可行</p>
+<p>针对HTTPS，主要的攻击方式还是中间人攻击，简单来说，对于客户端，我们是服务端，对于服务端，我们是客户端。对服务端来说我们和真正的客户端没什么区别，因此关键就在于如何对客户端来说，我们服务端。这里就需要伪造证书，但伪造的证书是不可能会有正规CA机构的签名，因此浏览器一定会弹出警告，从这一点来说这一次攻击就失败了，但不排除某些用户不清楚规则，继续访问站点，我们的攻击就是在这样的情况下进行的</p>
+<p>接下来就是如何伪证书了</br><br>利用openssl可以办到</p>
+<h5 id="1-生成自己的CA根证书"><a href="#1-生成自己的CA根证书" class="headerlink" title="1.生成自己的CA根证书"></a>1.生成自己的CA根证书</h5><p>1.生成CA私钥文件ca.key</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out ca.key 1024</span><br></pre></td></tr></table></figure>
+<p>2.因为HTTPS通信所用的数字证书格式为X509,因此生成X509证书签名请求文件ca.scr，同时会让输入一些组织信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key ca_private.key -out ca.csr</span><br></pre></td></tr></table></figure>
+<p>3.生成X509格式的CA根证书ca_public.crt(公钥证书)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509-req -in ca.csr -signkey ca_private.key -out ca_public.crt</span><br></pre></td></tr></table></figure>
+<h5 id="2-生成服务端证书"><a href="#2-生成服务端证书" class="headerlink" title="2.生成服务端证书"></a>2.生成服务端证书</h5><p>1.先生成服务端私钥文件service_private.key</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">opebssl genrsa -out server_private.key 1024</span><br></pre></td></tr></table></figure>
+<p>2.根据服务器私钥生成公钥文件service_public.pem</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in server_private.key -pubout -out server_public.pem</span><br></pre></td></tr></table></figure>
+<p>3.服务器端需要向CA机构申请签名，申请之前依然先创建自己的证书签名请求文件(注意，对于HTTPS的csr,Coommon Name必须和网站域名一致，以便之后进行Host Name检验)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key server_private.key -out server.csr</span><br></pre></td></tr></table></figure>
+<p>4.服务器端用server.csr文件向CA申请证书，签名过程中需要CA的公钥和私钥参与，最终颁发一个含有CA签名的服务器端证书server.crt</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req -CA ca_public.crt -CAkey ca_private.key -CAcreateserial -in server.csr -out -server.crt</span><br></pre></td></tr></table></figure>
+<p>到这里证书就生成完毕了<br>6.使用openssl查看证书信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -in server.crt -text -noout</span><br></pre></td></tr></table></figure>
+<h5 id="3-生成客户端证书"><a href="#3-生成客户端证书" class="headerlink" title="3.生成客户端证书"></a>3.生成客户端证书</h5><p>步骤和生成服务端证书基本一致<br>1.生成客户端私钥</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out client.key 1024</span><br></pre></td></tr></table></figure>
+<p>2.生成客户端公钥</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in client.key -pubout -out client.pem</span><br></pre></td></tr></table></figure>
+<p>3.创建签名请求文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key client.key -out client.csr</span><br></pre></td></tr></table></figure>
+<p>4.请求签名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -in client.csr -out client.crt</span><br></pre></td></tr></table></figure>
+
+
+<p>接下来实验ARP欺诈中间人攻击。</p>
+<h5 id="试验机器"><a href="#试验机器" class="headerlink" title="试验机器"></a>试验机器</h5><p>一台无线路由器(我家的路由器)<br>被攻击主机(物理机，IP：192.168.0.103，MAC地址：54-13-79-0E-C4-63)<br>攻击主机(虚拟机kail，IP：192.168.0.101，MAC地址：00:0c:29:54:46:63)</p>
+<h5 id="开始攻击"><a href="#开始攻击" class="headerlink" title="开始攻击"></a>开始攻击</h5><p>1.因为两台机器都放在同一局域网下，所以先用NMAP扫描<br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/Nmap.png" alt="image"><br>可以看到第一个是路由器，根据MAC地址测到牌子是Tenda，第二个是我手机，第三个是物理机了，第四个是攻击机<br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/ettercap.png" alt="image"><br>打开Eccercap，”Sniff”-&gt;”Uniffled Sniffing”-&gt;”ech0”，接着”Hosts”-&gt;”Scan for Hosts”，完成后”Hosts List”，可以看到局域网下的三个主机<br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/host.png" alt="image"><br>第一个是路由器，第二个是手机，第三个是物理机了</br><br>将物理机添加到Target1，路由器添加到Target2，然后”Mitm”-&gt;”ARP poisoning”-&gt;”Sniff remote connections”<br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/ARP.png" alt="image"><br>可以看到更改网关已经成功了</br><br>现在我们用物理机上网，会发现已经上不去网络了，因为流量都被发送到了攻击机但是攻击机又没有回应，因此网络上不去，我们用Wireshark抓包看一下<br><img src="https://raw.githubusercontent.com/2830605891/Picture/pic/wireshark.png" alt="iamge"><br>可以看到发往路由器的流量已经被拦截下来了</p>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/02/08/Flask%E6%BC%8F%E6%B4%9E%E6%A2%B3%E7%90%86/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            Flask漏洞梳理</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/16/scrapy%E7%88%AC%E8%99%AB/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">scrapy爬虫
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/02/08/Flask%E6%BC%8F%E6%B4%9E%E6%A2%B3%E7%90%86/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            Flask漏洞梳理</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2019/01/16/scrapy%E7%88%AC%E8%99%AB/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">scrapy爬虫
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-生成自己的CA根证书"><span class="toc-text">1.生成自己的CA根证书</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-生成服务端证书"><span class="toc-text">2.生成服务端证书</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-生成客户端证书"><span class="toc-text">3.生成客户端证书</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#试验机器"><span class="toc-text">试验机器</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#开始攻击"><span class="toc-text">开始攻击</span></a></li></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/forthrglory" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; Hexo
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio" target="_blank" rel="noopener">Adagio</a> - A <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com" target="_blank" rel="noopener">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+
+<script src="/js/av.min.js"></script>
+
+
+<script src="/js/valine.min.js"></script>
+
+
+<script src="/js/applause-easy.js"></script>
+
+
+<script src="/live2d-widget/autoload.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>

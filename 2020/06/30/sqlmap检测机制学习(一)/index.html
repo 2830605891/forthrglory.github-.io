@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="http://some.url/to/favicon.ico">
+    <title>sqlmap检测机制学习(一)-Forthrglory-不得贪胜</title>
+    
+        
+            <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/academicons/1.8.6/css/academicons.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/font-awesome/5.9.0/css/all.min.css" rel="stylesheet">
+            <link href="https://cdn.bootcss.com/animate.css/3.7.2/animate.min.css" rel="stylesheet">
+        
+    
+    
+<link rel="stylesheet" href="/css/adagio.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+<body>
+    <div class="container-fluid">
+    <nav class="nav">
+        <div class="collapse navbar-collapse" id="navbar-sm">
+            
+            
+            <div class="navbar-nav">
+                <a href="http://forthrglory.com" target="_blank" rel="noopener" class="nav-item nav-link">forthrglory</a>
+            </div>
+            
+        </div>
+    </nav>
+</div>
+
+<div class="d-flex d-md-none" style="width: 100%; background-color: #e9ecef">
+    
+    <div class="nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-sm"
+            aria-expanded="false" aria-label="Toggle Navigation">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+    </div>
+    
+    <nav class="navbar ml-auto">
+        <a class="navbar-brand" href="/">
+            
+            Forthrglory
+            
+        </a>
+    </nav>
+</div>
+
+
+<div class="container d-none d-md-block my-navbar">
+    <nav class="navbar navbar-expand-sm navbar-light bg-transparent">
+        <a class="navbar-brand " href="/">
+            
+            Forthrglory
+            
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                
+                <li class="nav-item pl-2 pr-2 ">
+                    <a class="nav-link" href="http://forthrglory.com" target="_blank" rel="noopener">forthrglory</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </nav>
+</div>
+
+
+
+
+    <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        
+        <h1 class="mt-4 article-title page-title">sqlmap检测机制学习(一)</h1>
+        
+        <p class="lead text-gray mt-3">By Anonymous; Published on 2020-06-30</p>
+        
+        <div class="tags">
+            <ul class="tag-list">
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/">知识点</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+                </li>
+                
+                <li class="tag-list-item">
+                    <a class="tag-list-link" href="/tags/sqlmap/">sqlmap</a>
+                </li>
+                
+            </ul>
+        </div>
+        
+    </div>
+</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 pt-2">
+                <div class="row">
+                    <div class="col-12">
+                        <main>
+                            <article class="article-text page-content"><p>一直对sqlmap的检测机制比较好奇，正好考完试后比较有时间，因此这篇文章将会记录我对sqlmap检测机制的学习和一些看法，如果有什么想法也可以评论交流学习</p>
+<h4 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h4><p>以mysql为例，简单介绍下SQL注入的类型</p>
+<h5 id="union注入"><a href="#union注入" class="headerlink" title="union注入"></a>union注入</h5><p>最基本的注入，语句类似于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id&#x3D;1 union select 1,2,database();</span><br></pre></td></tr></table></figure>
+
+<p>union在mysql中用于联合两个查询语句</p>
+<h5 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h5><p>利用数据库的报错将数据外带，语句类似于</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id&#x3D;1 and updatexml(1, concat(&#39;~&#39;, (select database()), &#39;~&#39;), 1);</span><br></pre></td></tr></table></figure>
+
+<h5 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h5><p>页面仅返回正确或者错误，通过判断正确与否确认数据的对错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id&#x3D;1 and if(ascii(substr((select database()), 1, 1))&#x3D;&#39;s&#39;, 0, 1);</span><br></pre></td></tr></table></figure>
+
+<h5 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h5><p>无论正确还是错误，页面都没有变化，根据页面的响应时间判断数据的对错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id&#x3D;1 and if(ascii(substr((select database()), 1, 1))&#x3D;&#39;s&#39;, 0, sleep(5));</span><br></pre></td></tr></table></figure>
+
+<h5 id="堆叠注入"><a href="#堆叠注入" class="headerlink" title="堆叠注入"></a>堆叠注入</h5><p>通过两个SQL语句的连接进行查询</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id&#x3D;1;select database();</span><br></pre></td></tr></table></figure>
+
+<h4 id="布尔盲注检测"><a href="#布尔盲注检测" class="headerlink" title="布尔盲注检测"></a>布尔盲注检测</h4><p>逻辑发包-&gt;判断相似度-&gt;确认误报-&gt;确认漏洞</p>
+<h4 id="报错注入检测"><a href="#报错注入检测" class="headerlink" title="报错注入检测"></a>报错注入检测</h4><p>发送payload-&gt;正则匹配数据-&gt;确认漏洞</p>
+<h4 id="union注入检测"><a href="#union注入检测" class="headerlink" title="union注入检测"></a>union注入检测</h4><h5 id="order-by-探测列数"><a href="#order-by-探测列数" class="headerlink" title="order by 探测列数"></a>order by 探测列数</h5><p>order by 小数 与order by 大数相似度匹配-&gt;二分法匹配列数-&gt;确认漏洞</p>
+<h5 id="select-null-探测列数"><a href="#select-null-探测列数" class="headerlink" title="select null 探测列数"></a>select null 探测列数</h5><p>十个null取相似度-&gt;去掉最小最大值取上下边界-&gt;相似度是否在边界内-&gt;确认漏洞</p>
+<h4 id="时间盲注检测"><a href="#时间盲注检测" class="headerlink" title="时间盲注检测"></a>时间盲注检测</h4><p>发送payload-&gt;判断延迟-&gt;确认漏洞</p>
+<p>注：select null探测列数与时间盲注判断延迟都采用高斯分布，即去掉最小最大值后，数据取平均值与标准差，上界=平均值+标准差，下界=平均值-标准差</p>
+<h3 id="SQLMAP-main"><a href="#SQLMAP-main" class="headerlink" title="SQLMAP main"></a>SQLMAP main</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">if __name__ &#x3D;&#x3D; &quot;__main__&quot;:</span><br><span class="line">    try:</span><br><span class="line">        main()</span><br><span class="line">    except KeyboardInterrupt:</span><br><span class="line">        pass</span><br><span class="line">    except SystemExit:</span><br><span class="line">        raise</span><br><span class="line">    except:</span><br><span class="line">        traceback.print_exc()</span><br><span class="line">    finally:</span><br><span class="line">        # Reference: http:&#x2F;&#x2F;stackoverflow.com&#x2F;questions&#x2F;1635080&#x2F;terminate-a-multi-thread-python-program</span><br><span class="line">        if threading.activeCount() &gt; 1:</span><br><span class="line">            os._exit(getattr(os, &quot;_exitcode&quot;, 0))</span><br><span class="line">        else:</span><br><span class="line">            sys.exit(getattr(os, &quot;_exitcode&quot;, 0))</span><br><span class="line">else:</span><br><span class="line">    # cancelling postponed imports (because of Travis CI checks)</span><br><span class="line">    __import__(&quot;lib.controller.controller&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>主要是调用mian函数，直接跟入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">def main():</span><br><span class="line">    &quot;&quot;&quot;</span><br><span class="line">    Main function of sqlmap when running from command line.</span><br><span class="line">    &quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">    try:</span><br><span class="line">        dirtyPatches() # 对系统进行一些设置，譬如设置最大行长度，更改编码方式</span><br><span class="line">        resolveCrossReferences() # 设置属性</span><br><span class="line">        checkEnvironment() # 检查环境</span><br><span class="line">        setPaths(modulePath()) # 设置程序路径</span><br><span class="line">        banner() # 将文本打印到标准输出流</span><br><span class="line"></span><br><span class="line">        # Store original command line options for possible later restoration</span><br><span class="line">        args &#x3D; cmdLineParser()</span><br><span class="line">        cmdLineOptions.update(args.__dict__ if hasattr(args, &quot;__dict__&quot;) else args)</span><br><span class="line">        initOptions(cmdLineOptions)</span><br><span class="line">        </span><br><span class="line">        ......</span><br></pre></td></tr></table></figure>
+
+<p>这里是第一部分，我添加了一些注释，主要是进行一些初始化的操作</p>
+<p>首先是第一个dirtyPatches函数，跟进查看源代码</p>
+<p><img src="https://i.loli.net/2020/07/08/J3YWO4zgipynEbr.png" alt="QQ20200708-170159@2x.png"></p>
+<p>函数设置了最大行长度，以及二次编码，Windows下的ip地址转换以及修复了py的一个bug，最后则初始化了一个阙值，防止过多的测试</p>
+<p><img src="https://i.loli.net/2020/07/08/SeucdRKXnbBfq9i.png" alt="QQ20200708-172739@2x.png"></p>
+<p>第二个函数主要是对一些方法进行了重写以解决交叉引用</p>
+<p><img src="https://i.loli.net/2020/07/08/J1MD7URBPLOkNQC.png" alt="1.png"></p>
+<p>第三个函数检查环境，包括程序的路径以及版本等等，同时导入了全局变量</p>
+<p><img src="https://i.loli.net/2020/07/08/MAYQhqvsFBUL3NJ.png" alt="2.png"></p>
+<p>第四个函数太长，不在放截图，主要是对一些路径进行设置，同时检查一些文件的存在和权限，是否可读。modulePath则是获取程序的位置</p>
+<p><img src="https://i.loli.net/2020/07/08/bECVQv7K2AfeXHz.png" alt="3.png"></p>
+<p>banner函数，打印banner信息</p>
+<p>接下来三条语句将命令行参数保存下来，供后面使用</p>
+<p>键入命令<code>-u www.baidu.com</code>，打印一下args</p>
+<p><img src="https://i.loli.net/2020/07/09/OgqRPwdZSh13uIt.png" alt="1.png"></p>
+<p>cmdLineOptions是AttribDict类型，由sqlmap自定义的一个dict类，继承了原来的类的同时重写了部分方法，更方便</p>
+<p><img src="https://i.loli.net/2020/07/09/tXyWed1lFBGAovw.png" alt="2.png">接着两个if，第一个判断是否有管道输入，第二个判断是否调用api，接着打印两条语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[!] legal disclaimer: Usage of sqlmap for attacking targets without prior mutual consent is illegal. It is the end user&#39;s responsibility to obey all applicable local, state and federal laws. Developers assume no liability and are not responsible for any misuse or damage caused by this program</span><br><span class="line">[*] starting @ 16:06:43 &#x2F;2020-07-09&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>接着进行核心的参数处理</p>
+</article>
+                        </main>
+                        
+                        
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-12">
+                        <div class="row">
+    <div class="col">
+        <nav aria-label="paginator" class="paginator">
+            <ul class="pagination d-none d-md-flex pagination-lg justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/07/11/sqlmap%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0(%E4%BA%8C)/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            sqlmap检测机制学习(二)</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/05/11/%E7%BD%91%E9%BC%8E%E6%9D%AF%E7%AC%AC%E4%B8%80%E5%9C%BA%E9%9D%92%E9%BE%99%E7%BB%84web%E9%83%A8%E5%88%86WP/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">网鼎杯第一场青龙组web部分WP
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="pagination d-md-none justify-content-center">
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/07/11/sqlmap%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0(%E4%BA%8C)/"
+                        aria-label="Previous">
+                        <span aria-hidden="true">&laquo;
+                            sqlmap检测机制学习(二)</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item ">
+                    <a class="page-link"
+                        href="/2020/05/11/%E7%BD%91%E9%BC%8E%E6%9D%AF%E7%AC%AC%E4%B8%80%E5%9C%BA%E9%9D%92%E9%BE%99%E7%BB%84web%E9%83%A8%E5%88%86WP/"
+                        aria-label="Next">
+                        <span
+                            aria-hidden="true">网鼎杯第一场青龙组web部分WP
+                            &raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="vcomment"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="container pt-4 page-sidebar">
+                    
+                    <div class="row">
+    <div class="col">
+        <h6>APPLAUSE FOR ME</h6>
+        <div id="applause-easy"></div>
+    </div>
+</div>
+                    
+                    <hr class="row">
+                    <div class="row toc-container">
+                        <div class="col-12">
+                            <h6>NAVIGATION</h6>
+                            <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL注入"><span class="toc-text">SQL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#union注入"><span class="toc-text">union注入</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#报错注入"><span class="toc-text">报错注入</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#布尔盲注"><span class="toc-text">布尔盲注</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#时间盲注"><span class="toc-text">时间盲注</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#堆叠注入"><span class="toc-text">堆叠注入</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#布尔盲注检测"><span class="toc-text">布尔盲注检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#报错注入检测"><span class="toc-text">报错注入检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#union注入检测"><span class="toc-text">union注入检测</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#order-by-探测列数"><span class="toc-text">order by 探测列数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#select-null-探测列数"><span class="toc-text">select null 探测列数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#时间盲注检测"><span class="toc-text">时间盲注检测</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQLMAP-main"><span class="toc-text">SQLMAP main</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+    <div class="jumbotron jumbotron-fluid mb-0">
+        <div class="container-fluid">
+            <div class="col text-center">
+                <div class="bottom-social">
+                    <div class="row">
+    <div class="col text-center">
+        <ul class="list-inline">
+            
+            <li class="list-inline-item">
+                
+                <a href="https://github.com/forthrglory" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.facebook.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.pinterest.com/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-pinterest-p fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+            <li class="list-inline-item">
+                
+                <a href="https://www.linkedin.com/in/xxxxx" target="_blank" rel="noopener">
+                    <span class="fa-stack fa-2x icon-link">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fab fa-linkedin-in fa-stack-1x fa-inverse"></i>
+                    </span>
+                </a>
+                
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+                <p class="copyright text-muted">
+                    Copyright &copy; Hexo
+                    <br>
+                    Thanks for coming!
+                    <br>
+                    <a href="https://github.com/Hanlin-Dong/hexo-theme-adagio" target="_blank" rel="noopener">Adagio</a> - A <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> theme made with love by
+                    <a href="http://www.hanlindong.com" target="_blank" rel="noopener">Hanlin Dong</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    
+    
+        <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.slim.min.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.bootcss.com/font-awesome/5.9.0/js/all.min.js"></script>
+         
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                    CommonHTML: { linebreaks: { automatic: true } },
+                    "HTML-CSS": { linebreaks: { automatic: true } },
+                    SVG: { linebreaks: { automatic: true } }
+                });
+            </script>
+            <script src='https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+        
+    
+
+
+
+<script src="/js/av.min.js"></script>
+
+
+<script src="/js/valine.min.js"></script>
+
+
+<script src="/js/applause-easy.js"></script>
+
+
+<script src="/live2d-widget/autoload.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    var a = new ApplauseEasy({
+        id: 'applause-easy',
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        img_src: "http://img.hanlindong.com/blog/site/clap.png",
+        img_width: "50px",
+        img_height: "50px"
+    })
+})
+</script>
+
+
+<script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?123456789";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-11111111-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-11111111-1');
+</script>
+
+
+    
+    <script>
+    new Valine({
+        el: "#vcomment",
+        appId: "xxxxxxxxxx",
+        appKey: "xxxxxxxxxx",
+        notify: false,
+        varify: false,
+        avatar: 'identicon',
+        placeholder: "",
+        recordIP: true
+    })
+</script>
+    
+</body>
+</html>
