@@ -86,6 +86,34 @@
                     
                     <div class="row">
     <div class="col">
+        <a href="/2020/12/21/%E5%8D%8E%E4%B8%BACTF-WP-1/" class="index-card-link">
+            <div class="card-body index-card-box">
+                <h4 class="card-title text-dark article-title">华为CTF-WP-华为云专场</h4>
+                <h6 class="card-subtitle mt-2 text-muted">
+                    By 
+                    Anonymous; 
+                    Published on 2020-12-21</h6>
+                <p class="card-text text-dark mt-2 article-text">
+                    收获颇丰，第一次见ssti还能这么玩
+签到没啥好说的，关注拿flag就完了
+mine1_1扫雷打通关会请求输入用户名，然后跳转到一个页面
+
+py的web，大概率SSTI，直接试一下
+
+OK，先跑一下，大概过滤了这些东西
+
+双引号单引号被过滤，使用None代替，下划线被过滤，使用request绕过，但是POST方式不被允许，因此使用cookies代替，数组使用pop绕过
+
+因此，最终构造的pa...
+                </p>
+            </div>
+        </a>
+    </div>
+</div>
+                    <hr class="row">
+                    
+                    <div class="row">
+    <div class="col">
         <a href="/2020/09/08/DDCTF-webWP/" class="index-card-link">
             <div class="card-body index-card-box">
                 <h4 class="card-title text-dark article-title">DDCTF-webWP</h4>
@@ -298,29 +326,6 @@ BurpSuite会对POST的数据进行UrlDecode，编写EXP进行模拟登录时需�
 </div>
                     <hr class="row">
                     
-                    <div class="row">
-    <div class="col">
-        <a href="/2019/07/04/windows%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4/" class="index-card-link">
-            <div class="card-body index-card-box">
-                <h4 class="card-title text-dark article-title">Windows执行命令</h4>
-                <h6 class="card-subtitle mt-2 text-muted">
-                    By 
-                    Anonymous; 
-                    Published on 2019-07-04</h6>
-                <p class="card-text text-dark mt-2 article-text">
-                    psexec条件开启ADMIN$共享安装服务
-使用windows用来远程系统管理的工具需要知道账号密码或者hash
-1psexec.exe \\远程目标机器ip -u 账号 -p 密码 cmd
-在第一次用的时候会弹出确认框，可以添加参数避免
-1psexec.exe -accepteula  \\远程目标机器ip -u 账号 -p 密码 cmd
-获取的是一个半交互式的shell，当破解不出ha...
-                </p>
-            </div>
-        </a>
-    </div>
-</div>
-                    <hr class="row">
-                    
                 </div>
             </div>
             <div class="row">
@@ -396,7 +401,7 @@ BurpSuite会对POST的数据进行UrlDecode，编写EXP进行模拟登录时需�
     <div class="col">
         <h6>FEATURED TAGS</h6>
         <div class="tags">
-            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WP/" rel="tag">WP</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlmap/" rel="tag">sqlmap</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CTF/" rel="tag">CTF</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A5%87%E6%80%AA%E7%9A%84%E5%B0%8F%E7%9F%A5%E8%AF%86/" rel="tag">奇怪的小知识</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web/" rel="tag">Web</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/" rel="tag">web</a><span class="tag-list-count">1</span></li></ul>
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WP/" rel="tag">WP</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sqlmap/" rel="tag">sqlmap</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CTF/" rel="tag">CTF</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A5%87%E6%80%AA%E7%9A%84%E5%B0%8F%E7%9F%A5%E8%AF%86/" rel="tag">奇怪的小知识</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web/" rel="tag">Web</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/web/" rel="tag">web</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SSTI/" rel="tag">SSTI</a><span class="tag-list-count">1</span></li></ul>
         </div>
     </div>
 </div>
